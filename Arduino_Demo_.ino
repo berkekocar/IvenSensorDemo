@@ -8,31 +8,41 @@
 #define SENSOR_5 A1
 
 
+#define SECRET_KEY "93bb4aee6fc9ba9502a4022931a59ea1f6421250"
+#define DEVICE_UID "demo1234"
 
-#define SECRET_KEY "a0b5e7487d6f166c272182301cdc5b83ced04000"
-#define DEVICE_UID "BERKEKOCAR"
+#define SSID "IVEN_DEVICE"
+#define PASSWORD "Iven2016"
+
+#define FREQUENCY 1000
+
 
 SimpleDHT11 dht;
 bool isActive = false;
-
 IvenCloudESP client(2, 3, 9600);
 void setup() {
   Serial.begin(115200);
   Serial.println("start");
-  //  SoftwareSerial esp(2, 3);
-  //  esp.begin(9600);
-  //  esp.println("AT+CWJAP=\"IVEN_TEST\",\"Iven2016\"");
-  //  while (true) {
-  //    while (Serial.available())
-  //      esp.print((char)Serial.read());
-  //    while (esp.available())
-  //      Serial.print((char)esp.read());
-  //    delay(99);
-  //  }
-  //  Serial.println("ok");
+
+  SoftwareSerial esp(2, 3);
+  esp.begin(9600);
+  
+//   while (true) {
+//       while (Serial.available())
+//         esp.print((char)Serial.read());
+//       while (esp.available())
+//         Serial.print((char)esp.read());
+//       delay(9);
+//     }
+    
+  delay(3000);
+  esp.println("AT+CWJAP=\"" SSID "\",\"" PASSWORD "\"");
+  delay(1000);
+  Serial.print(esp.readString());
+
+  Serial.println("ok");
 }
 void loop() {
-
 
   if (!isActive) {
     IvenResponse resp = client.activateDevice(SECRET_KEY, DEVICE_UID);
@@ -40,6 +50,7 @@ void loop() {
       isActive = true;
       Serial.println("activated");
     } else {
+      Serial.print("Activate Error: code ");
       Serial.println(resp.error);
     }
   } else {
@@ -72,7 +83,8 @@ void loop() {
     data.add("gas", gas);
 
     IvenResponse result = client.sendData(data);
-    delay(333);
+    Serial.print("Send Data iven code: ");
     Serial.println(result.ivenCode);
+    delay(FREQUENCY);
   }
 }
